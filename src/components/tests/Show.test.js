@@ -5,13 +5,54 @@ import userEvent from '@testing-library/user-event';
 
 import Show from './../Show';
 
-test('renders without errors', ()=>{});
+const fakeShow = {
+    name: 'fake show',
+    summary: 'fake summary',
+    seasons: [
+        {
+            id: 0,
+            name:'Season 1',
+            episodes: []
+        },
+        {
+            id: 1,
+            name:'Season 2',
+            episodes: [] 
+        },
+        {
+            id: 2,
+            name:'Season 3',
+            episodes: [] 
+        }
+    ]
+}
 
-test('renders Loading component when prop show is null', () => {});
+test('renders without errors', ()=>{
+    render(<Show show={null} selectedSeason={'none'}/>)
+});
 
+test('renders Loading component when prop show is null', () => {
+    render(<Show show={null}/>)
+    const loading = screen.queryByTestId('loading-container')
+    expect(loading).toBeInTheDocument()
+});
 
-test('renders same number of options seasons are passed in', ()=>{});
+test('renders same number of options seasons are passed in', ()=>{
+    render(<Show show={fakeShow} selectedSeason={'none'}/>)
+    const seasonOptions = screen.queryAllByTestId('season-option')
+    expect(seasonOptions).toHaveLength(3)
+});
 
-test('handleSelect is called when an season is selected', () => {});
+test('handleSelect is called when an season is selected', () => {
+    const handleSelect = jest.fn()
+    render(<Show show={fakeShow} selectedSeason={'none'} handleSelect={handleSelect} />)
+    const select = screen.getByLabelText(/select a season/i)
+    userEvent.selectOptions(select, ['1'])
+    expect(handleSelect).toBeCalled()
+});
 
-test('component renders when no seasons are selected and when rerenders with a season passed in', () => {});
+test('component renders when no seasons are selected and when rerenders with a season passed in', () => {
+    const { rerender } = render(<Show show={fakeShow} selectedSeason={'none'} />)
+    let episodes = screen.queryByTestId('episodes-container')
+    expect(episodes).not.toBeInTheDocument()
+});
